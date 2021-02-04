@@ -1,11 +1,4 @@
 import React, { useState } from 'react';
-// import {
-//   Form,
-//   Button,
-//   Radio,
-//   Select,
-//   DatePicker,
-// } from 'antd';
 import Form from 'antd/lib/form'
 import Button from 'antd/lib/button'
 import Radio from 'antd/lib/radio'
@@ -29,7 +22,11 @@ const ParamForm = () => {
         },
       } :
       null;
-  
+
+  const onFinish = (e) => {
+    console.log('Click Submit')
+  }
+
   return (
     <>
       <Form
@@ -45,6 +42,8 @@ const ParamForm = () => {
         }}
         onValuesChange={onFormLayoutChange}
         size={componentSize}
+
+        onFinish={onFinish}
       >
         <Form.Item label="Station" name="station">
           <Radio.Group>
@@ -91,7 +90,7 @@ const ParamForm = () => {
         </Form.Item>
 
         <Form.Item {...buttonItemLayout}>
-          <Button type="primary">Submit</Button>
+          <Button type="primary" htmlType="submit">Submit</Button>
         </Form.Item>
       </Form>
     </>
