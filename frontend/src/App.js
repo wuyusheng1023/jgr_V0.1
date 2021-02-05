@@ -11,6 +11,7 @@ import DateList from './components/DateList'
 function App() {
   const [queryMeta, setQueryMeta] = useState({isSubmitted: false})
   const [dateList, setDateList] = useState()
+  const [runID, setRunID] = useState(-1)
 
   // const url = "https://smear-backend.rahtiapp.fi/search/timeseries"
 
@@ -33,8 +34,16 @@ function App() {
       const dtItem = dt.toISOString().slice(0, 10)
       arr.push(dtItem)
     }
-    return arr;
+    return arr.map((item, index) => ({ id: index, date: item }));
   }
+
+  // const sleep = milliseconds => {
+  //   const date = Date.now();
+  //   let currentDate = null;
+  //   do {
+  //     currentDate = Date.now();
+  //   } while (currentDate - date < milliseconds);
+  // }
 
   return (
     <div className="App">
@@ -59,10 +68,10 @@ function App() {
 
       {queryMeta.isSubmitted === true ? 
         <Row>
-          
           <Col span={5} offset={2}>
-            <DateList dateList={dateList}/>
+            <DateList runID={runID} dateList={dateList} onClick={ () => (setRunID(0)) }/>
           </Col>
+
           <Col span={15} offset={0}>
             content
           </Col>
@@ -73,7 +82,7 @@ function App() {
         <Col span={20} offset={2}>
           <p style={{ textAlign: 'center', fontSize: '10px', marginTop: '30px' }}>
             © Copyright 2021. All Rights Reserved.
-            <br></br>yusheng.wu@helisinki.fi
+            <br></br>yusheng.wu@helsinki.fi
           </p>
         </Col>
       </Row>
