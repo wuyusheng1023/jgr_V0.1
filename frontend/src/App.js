@@ -61,7 +61,7 @@ function App() {
         <Row>
           
           <Col span={5} offset={2}>
-            <DateList/>
+            <DateList dateList={dateList}/>
           </Col>
           <Col span={15} offset={0}>
             content
