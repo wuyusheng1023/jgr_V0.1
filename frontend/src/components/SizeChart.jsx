@@ -1,5 +1,6 @@
 import { useRef, useEffect } from 'react'
 import * as d3 from 'd3'
+import * as colormap from 'colormap'
 
 const SizeChart = ({ data }) => {
 
@@ -38,12 +39,34 @@ const SizeChart = ({ data }) => {
       for (const k in data.data[i]) {
         if (k !== "samptime") {
           let index = i + pxX * (pxY - 1 - y.indexOf(mapDp(k)));
-          z[index] = data.data[i][k];
+          let x = data.data[i][k]
+          z[index] = x>=10 ? Math.log10(x) : 1.000000001;
         };
       };
     };
 
-    var scC = d3.scaleLinear().domain([1, 3, 5]).range(["blue", "white", "red"]);
+    const colors = colormap({
+      colormap: 'jet',
+      nshades: 61,
+      format: 'hex',
+      alpha: 1
+    })
+
+    const range = (start, end, step = 1) => {
+      let output = [];
+      if (typeof end === 'undefined') {
+        end = start;
+        start = 0;
+      }
+      for (let i = start; i < end; i += step) {
+        output.push(i);
+      }
+      return output;
+    };
+
+    var scC = d3.scaleLinear()
+      .domain(range(1, 4.0001, 0.05))
+      .range(colors);
     
     const svg = d3.select(ref.current);
     const g = svg.append("g");
@@ -52,10 +75,8 @@ const SizeChart = ({ data }) => {
     g.append("g").selectAll("path").data( conMkr(z) ).enter()
       .append("path")
         .attr("d", d3.geoPath())
-        .attr("fill", d => scC(Math.log10(d.value)))
+        .attr("fill", d => scC(d.value))
         .attr("stroke", "none")
-
-    console.log(data);
 
     return svg.node();
   })
@@ -63,7 +84,7 @@ const SizeChart = ({ data }) => {
   const ref = useRef()
 
   return (
-    <svg
+    <svg viewBox="0 0 200 150"
       style={{backgroundColor: "LishtGrey"}}
       ref={ref}
     />
