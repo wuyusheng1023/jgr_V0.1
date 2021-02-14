@@ -5,33 +5,38 @@ import * as colormap from 'colormap'
 const SizeChart = ({ data }) => {
 
   useEffect(() => {
-    let width = 800;
-    let height = 600;
+    const dpLowerLimit = 3e-9
+    const width = 800;
+    const height = 450;
 
-    let contourMargin = {
+    const conMargin = {
       top: 20,
       bottom: 50,
       left: 40,
       right: 100
     };
 
-    let colorBarMargin = {
+    const colorBarMargin = {
       top: 20,
       bottom: 50,
       left: 720,
       right: 50
-    }
+    };
 
-    let x = data.data.map( (d, i) => new Date(data.data[i].samptime));
-    let pxX = x.length
+    const conWidth = width - conMargin.left - conMargin.right
+    const conHeight = height - conMargin.top - conMargin.bottom
+
+    const x = data.data.map( (d, i) => new Date(data.data[i].samptime));
+    const pxX = x.length
 
     // "HYY_DMPS.d100e1" to 1e-9
-    let mapDp = d => {
-      let [_, dpStr] = d.split(".d")
+    const mapDp = d => {
+      const [_, dpStr] = d.split(".d");
       return +dpStr / 1e12
-    }
+    };
 
-    let y = data.columns.map(mapDp).sort( (a, b) => a - b );
+    let y = data.columns.map(mapDp).filter(x => x>dpLowerLimit).sort( (a, b) => a - b );
+
     let pxY = y.length
 
     let z = [];
@@ -68,11 +73,13 @@ const SizeChart = ({ data }) => {
       .domain(range(1, 4.0001, 0.05))
       .range(colors);
     
-    const svg = d3.select(ref.current);
+    const svg = d3.select(ref.current).attr("viewBox", `0 0 ${width} ${height}`);
     const g = svg.append("g");
 
     const conMkr = d3.contours().size([pxX, pxY]).thresholds(100);
-    g.append("g").selectAll("path").data( conMkr(z) ).enter()
+    g.append("g")
+      .attr("transform", `translate( ${conMargin.left}, ${conMargin.top} ) scale(${conWidth / pxX}, ${conHeight / pxY})`)
+      .selectAll("path").data( conMkr(z) ).enter()
       .append("path")
         .attr("d", d3.geoPath())
         .attr("fill", d => scC(d.value))
@@ -84,7 +91,7 @@ const SizeChart = ({ data }) => {
   const ref = useRef()
 
   return (
-    <svg viewBox="0 0 200 150"
+    <svg
       style={{backgroundColor: "LishtGrey"}}
       ref={ref}
     />
