@@ -119,7 +119,7 @@ const SizeChart = ({ data }) => {
       .domain(logDpRange)
       .range(colors);
 
-    // find the ROI
+    // find ROI
     const upperDp = 25e-9;
     const upperIndex = y.map(v => v > upperDp).indexOf(true);
     const upperArr = smArr2[upperIndex];
@@ -128,6 +128,24 @@ const SizeChart = ({ data }) => {
     const topROI = topRegion.map(dpArr => dpArr.map(v => -1));
     const bottomROI = bottomRegion.map(dpArr => dpArr.map((v, i) => v - upperArr[i]));
     const ROI = bottomROI.concat(topROI);
+
+    // find ROI2
+    const quantile = (arr, q) => {
+      const asc = arr => arr.sort((a, b) => a - b);
+      const sorted = asc(arr);
+      const pos = (sorted.length - 1) * q;
+      const base = Math.floor(pos);
+      const rest = pos - base;
+      if (sorted[base + 1] !== undefined) {
+        return sorted[base] + rest * (sorted[base + 1] - sorted[base]);
+      } else {
+        return sorted[base];
+      }
+    };
+    const smROI = ROI.map( (arr, i) => arr.map( (v, j) => smArr1[i][j] * ( v>0 ? 1 : 0 ) ) );
+    const q1 = quantile([].concat(...smROI).filter(v => v>0), .25);
+    const bottomROI2 = bottomRegion.map(dpArr => dpArr.map( v => v-q1 ));
+    const ROI2 = bottomROI2.concat(topROI);
 
     // start plotting
     const svg = d3.select(ref.current).attr("viewBox", `0 0 ${width} ${height}`);
@@ -156,7 +174,7 @@ const SizeChart = ({ data }) => {
       .call(d3.axisLeft(scY));
 
     // plot ROI contour line
-    z = Array.from(ROI).reverse();
+    z = Array.from(ROI2).reverse();
     z = [].concat(...z);
     conMkr = d3.contours().size([pxX, pxY]).thresholds(10);
     g.append("g").append("path")
