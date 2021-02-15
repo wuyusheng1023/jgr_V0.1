@@ -39,16 +39,21 @@ const SizeChart = ({ data }) => {
     const pxY = y.length
     const scY = d3.scaleLog().domain(d3.extent(y)).range([conMargin.top + conHeight, conMargin.top])
 
-    let z = [];
-    for (let i=0; i < pxX; i++ ) {
-      for (const k in data.data[i]) {
+    let dNdlogDp = [];
+    for (let j=0; j < pxX; j++) {
+      for (const k in data.data[j]) {
         if (k !== "samptime") {
-          let index = i + pxX * (pxY - 1 - y.indexOf(mapDp(k)));
-          let x = data.data[i][k]
-          z[index] = x>=10 ? Math.log10(x) : 1.000000001;
+          let i = y.indexOf(mapDp(k));
+          if (i >= 0) {
+            if (j === 0) {dNdlogDp[i] = []};
+            dNdlogDp[i][j] = data.data[j][k];
+          }
         };
       };
     };
+
+    let z = dNdlogDp.reverse();
+    z = [].concat(...z).map( x => x >= 10 ? Math.log10(x) : 1.000000001);
 
     const range = (start, end, step = 1) => {
       let output = [];
@@ -96,7 +101,7 @@ const SizeChart = ({ data }) => {
       .attr("transform", `translate( ${conMargin.left}, 0 )`)
       .call(d3.axisLeft(scY))
 
-    return svg.node();
+    // return svg.node();
   })
 
   const ref = useRef()
