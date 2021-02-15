@@ -41,15 +41,15 @@ const SizeChart = ({ data }) => {
     const scY = d3.scaleLog().domain(d3.extent(y)).range([conMargin.top + conHeight, conMargin.top])
 
     // Clean dNdlogDp 2D array from fetched Object data
-    let dNdlogDp = [];
+    let rawArr = [];
     for (let j=0; j < pxX; j++) {
       for (const k in data.data[j]) {
         if (k !== "samptime") {
           let i = y.indexOf(mapDp(k));
           if (i >= 0) {
-            if (j === 0) {dNdlogDp[i] = []};
-            dNdlogDp[i][j] = data.data[j][k];
-          }
+            if (j === 0) {rawArr[i] = []};
+            rawArr[i][j] = data.data[j][k];
+          };
         };
       };
     };
@@ -61,26 +61,32 @@ const SizeChart = ({ data }) => {
       return arr.length % 2 !== 0 ? nums[mid] : (nums[mid - 1] + nums[mid]) / 2;
     };
 
-    //Smooth dNdlogDp
-    const smX = 9;
-    const smY = 5;
-    const paddingX = (smX - 1) / 2;
-    const paddingY = (smY - 1) / 2;
-    let smArr = [];
-    for (let i = 0; i < pxY; i++) {
-      for (let j = 0; j < pxX; j++) {
-        if (j === 0) { smArr[i] = [] };
-        let filterArr = [];
-        for (let ii = -paddingX; ii <= paddingX; ii++) {
-          for (let jj = -paddingY; jj <= paddingY; jj++) {
-            if (i + ii >= 0 && i + ii < pxY && j + jj >= 0 && j + jj < pxX) {
-              filterArr.push(dNdlogDp[i + ii][j + jj])
+    //Smooth rawArr
+    const smoothDNdlogDp = (rawArr, smX, smY) => {
+      const paddingX = (smX - 1) / 2;
+      const paddingY = (smY - 1) / 2;
+      let smArr = [];
+      for (let i = 0; i < pxY; i++) {
+        for (let j = 0; j < pxX; j++) {
+          if (j === 0) { smArr[i] = [] };
+          let filterArr = [];
+          for (let ii = -paddingX; ii <= paddingX; ii++) {
+            for (let jj = -paddingY; jj <= paddingY; jj++) {
+              if (i + ii >= 0 && i + ii < pxY && j + jj >= 0 && j + jj < pxX) {
+                filterArr.push(rawArr[i + ii][j + jj])
+              };
             };
           };
+          smArr[i][j] = median(filterArr);
         };
-        smArr[i][j] = median(filterArr);
       };
+      return smArr;
     };
+    const smArr1 = smoothDNdlogDp(rawArr, 3, 3);
+    const smArr2 = smoothDNdlogDp(rawArr, 9, 5);
+
+    // select raw data or a smooth data to plot the contour
+    const dNdlogDp = smArr2;
 
     // Calculate 1D array for contour colors
     let z = dNdlogDp.reverse();
