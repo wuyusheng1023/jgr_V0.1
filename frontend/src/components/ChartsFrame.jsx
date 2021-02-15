@@ -49,20 +49,7 @@ const ChartsFrame = ({id, dateList, queryMeta}) => {
   return (
     <>
       <Row>
-        <Col style={{ padding: "10px" }} span={20} offset={2} >
-          <h3>
-            { 
-              step < 2 ? `step 1: ${steps.step1}` :
-              "step2"
-            }
-          </h3>
-        </Col>
-      </Row>
-      <Row>
-        {
-          (typeof data === "undefined") ? <h2>Waiting data</h2> :
-          <SizeChart data={data}/>
-        }
+        { (typeof data === "undefined") ? <h2>Loading data</h2> : <SizeChart data={data}/> }
       </Row>
     </>
   )

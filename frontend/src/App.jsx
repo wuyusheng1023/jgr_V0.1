@@ -52,7 +52,6 @@ function App() {
           </Col>
 
           <Col span={15} offset={0}>
-            <h2>Analysis Procedure</h2>
             <ChartsFrame id={runID} dateList={dateList} queryMeta={queryMeta} />
             </Col>
         </Row> : null

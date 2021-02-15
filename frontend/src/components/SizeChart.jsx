@@ -186,11 +186,14 @@ const SizeChart = ({ data }) => {
   const ref = useRef();
 
   return (
-    <svg
-      style={{backgroundColor: "LishtGrey"}}
-      ref={ref}
-    />
-  )
+    <>
+      <svg
+        style={{backgroundColor: "LishtGrey"}}
+        ref={ref}
+      />
+      <a href="https://www.nature.com/rticles/nprot.2012.091.pdf?origin=ppub">Kulmala, M. et al. (2012)</a>
+    </>
+  );
 };
 
 export default SizeChart;
